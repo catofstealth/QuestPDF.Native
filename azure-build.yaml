@@ -47,54 +47,56 @@ steps:
     targetType: 'inline'
     script: |
           apt install --yes software-properties-common
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-          add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main"
-          
-          apt update --yes
           apt install --yes clang-15 lldb-15 lld-15
           
-          update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
-          update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
+          #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          #add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
           
-          update-alternatives --config cc
-          update-alternatives --config c++
+          #apt update --yes
           
-          cc --version
-          c++ --version
-          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
-          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
           
-          update-alternatives --config clang
-          update-alternatives --config clang++
+          #update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
+          #update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
           
-          clang --version
-          clang++ --version
+          #update-alternatives --config cc
+          #update-alternatives --config c++
+          
+          #cc --version
+          #c++ --version
+          #update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
+          #update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+          
+          #update-alternatives --config clang
+          #update-alternatives --config clang++
+          
+          #clang --version
+          #clang++ --version
 
 - task: Bash@3
   displayName: 'Install Cmake'
   inputs:
     targetType: 'inline'
     script: |
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
-          apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
-          apt update
+          #wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
+          #apt-add-repository 'deb https://apt.kitware.com/ubuntu/ jammy main'
+          #apt update
           apt install cmake --yes
           cmake --version
 
 - task: Bash@3
-  displayName: 'Install Clang'
+  displayName: 'Install Python 3'
   inputs:
     targetType: 'inline'
     script: |
-            apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget --yes
-            wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz
-            tar xzf Python-3.8.18.tgz
-            cd Python-3.8.18
+            #apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget --yes
+            #wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz
+            #tar xzf Python-3.8.18.tgz
+            #cd Python-3.8.18
 
-            ./configure --enable-optimizations
-            make --silent
-            make install --silent
-            python3 --version
+            #./configure --enable-optimizations
+            #make --silent
+            #make install --silent
+            #python3 --version
 
 - task: Bash@3
   enabled: false
