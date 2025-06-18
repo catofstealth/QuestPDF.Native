@@ -33,6 +33,7 @@ steps:
           EOF
 
 - task: Bash@3
+  enabled: false
   displayName: 'Install Build Tools'
   inputs:
     targetType: 'inline'
@@ -42,6 +43,7 @@ steps:
           apt install wget git cmake fontconfig --yes
 
 - task: Bash@3
+  enabled: false
   displayName: 'Install Clang'
   inputs:
     targetType: 'inline'
@@ -73,6 +75,7 @@ steps:
           #clang++ --version
 
 - task: Bash@3
+  enabled: false
   displayName: 'Install Cmake'
   inputs:
     targetType: 'inline'
@@ -84,6 +87,7 @@ steps:
           cmake --version
 
 - task: Bash@3
+  enabled: false
   displayName: 'Install Python 3'
   inputs:
     targetType: 'inline'
