@@ -1,0 +1,233 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+ branches:
+  include:
+    - develop
+
+pool: 'Local Build Agents'
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+
+- task: Bash@3
+  displayName: 'Install Dependencies (Linux)'
+  inputs:
+    targetType: 'inline'
+    script: |
+          cat > /etc/apt/sources.list << EOF
+          deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
+          deb http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
+          deb http://archive.ubuntu.com/ubuntu/ focal-backports main restricted universe multiverse
+          deb http://security.ubuntu.com/ubuntu focal-security main restricted universe multiverse
+          EOF
+
+- task: Bash@3
+  displayName: 'Install Build Tools'
+  inputs:
+    targetType: 'inline'
+    script: |
+          apt update --yes
+          apt upgrade --yes
+          apt install wget git cmake fontconfig --yes
+
+- task: Bash@3
+  displayName: 'Install Clang'
+  inputs:
+    targetType: 'inline'
+    script: |
+          apt install --yes software-properties-common
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main"
+          
+          apt update --yes
+          apt install --yes clang-15 lldb-15 lld-15
+          
+          update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
+          update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
+          
+          update-alternatives --config cc
+          update-alternatives --config c++
+          
+          cc --version
+          c++ --version
+          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
+          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+          
+          update-alternatives --config clang
+          update-alternatives --config clang++
+          
+          clang --version
+          clang++ --version
+
+- task: Bash@3
+  displayName: 'Install Cmake'
+  inputs:
+    targetType: 'inline'
+    script: |
+          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
+          apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+          apt update
+          apt install cmake --yes
+          cmake --version
+
+- task: Bash@3
+  displayName: 'Install Clang'
+  inputs:
+    targetType: 'inline'
+    script: |
+            apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget --yes
+            wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz
+            tar xzf Python-3.8.18.tgz
+            cd Python-3.8.18
+
+            ./configure --enable-optimizations
+            make --silent
+            make install --silent
+            python3 --version
+
+- task: Bash@3
+  enabled: false
+  displayName: 'Install Build Tools (Alpine)'
+  inputs:
+    targetType: 'inline'
+    script: |
+          apk update
+          apk upgrade
+          apk add bash wget git python3 build-base cmake clang llvm15 icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
+
+- task: Bash@3
+  displayName: 'Install Skia Build System'
+  inputs:
+    targetType: 'inline'
+    script: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          echo "${PWD}/depot_tools" >> $GITHUB_PATH
+          export PATH="${PWD}/depot_tools:${PATH}"
+
+- task: Bash@3
+  displayName: 'Build Skia'
+  inputs:
+    targetType: 'inline'
+    script: |
+          git clone https://github.com/google/skia.git --branch chrome/m137 --single-branch
+          cd skia
+          git apply ../patches/*.patch
+          
+          bin/fetch-ninja
+          python3 tools/git-sync-deps
+          COMMON_ARGS='
+            is_official_build=true
+            is_component_build=false
+            is_debug=false
+            skia_enable_optimize_size=true
+            skia_enable_tools=true
+            skia_use_system_expat=false
+            skia_use_system_icu=false
+            skia_use_system_harfbuzz=false
+            skia_use_system_libjpeg_turbo=false
+            skia_use_system_libpng=false
+            skia_use_system_libwebp=false
+            skia_use_system_zlib=false
+            skia_use_system_freetype2=false
+            skia_use_dng_sdk=false
+            skia_use_harfbuzz=true
+            skia_use_icu=false
+            skia_use_icu4x=false
+            skia_use_libgrapheme=true
+            skia_use_fontconfig=false
+            skia_use_gl=false
+            skia_use_libjpeg_turbo_decode=true
+            skia_use_libjpeg_turbo_encode=true
+            skia_use_libpng_encode=true
+            skia_use_libpng_decode=true
+            skia_use_libwebp_encode=true
+            skia_use_libwebp_decode=true
+            skia_enable_android_utils=false
+            skia_enable_spirv_validation=false
+            skia_enable_gpu=false
+            skia_enable_gpu_debug_layers=false
+            skia_enable_fontmgr_custom_directory=true
+            skia_use_freetype=true
+            skia_use_jpeg_gainmaps=false
+            skia_use_libheif=false
+            skia_use_lua=false
+            skia_enable_svg=true
+            skia_use_expat=true
+            skia_enable_skshaper=true
+            skia_enable_skunicode=true
+            skia_pdf_subset_harfbuzz=true
+            skia_enable_pdf=true
+            skia_compile_modules=false
+            skia_enable_ganesh=false
+            skia_lex=false
+            extra_cflags=["-fPIC", "-fno-rtti"]'
+            
+          if [[ "${{ matrix.runtime.name }}" == linux-* ]]; then
+            COMMON_ARGS+=' cc="clang" cxx="clang++"'
+          fi
+          
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            COMMON_ARGS+=' skia_use_fonthost_mac=true'
+          fi
+          
+          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
+            COMMON_ARGS+=' target_cpu="x86"'
+          fi
+          
+          if [ "${{ matrix.runtime.name }}" = "linux-musl-x64" ]; then
+            gn gen out/release --args="$COMMON_ARGS"
+          else
+            bin/gn gen out/release --args="$COMMON_ARGS"
+          fi
+          ninja -C out/release skia svg skparagraph skresources
+
+- task: Bash@3
+  displayName: 'Configure CMake'
+  inputs:
+    targetType: 'inline'
+    script: |
+          CMAKE_ARGS="
+            -S ${PWD}/native 
+            -B ${PWD}/native/build 
+            -DSKIA_DIR=${PWD}/skia 
+            -DCMAKE_CXX_COMPILER=clang++ 
+            -DCMAKE_C_COMPILER=clang 
+            -DCMAKE_BUILD_TYPE=Release"
+          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
+            CMAKE_ARGS+=" -A Win32"
+          fi
+          cmake $CMAKE_ARGS
+
+- task: Bash@3
+  displayName: 'Build CMake'
+  inputs:
+    targetType: 'inline'
+    script: |
+          cmake 
+          --build ${PWD}/native/build 
+          --config Release
+
+- task: Bash@3
+  displayName: 'Copy artifacts to output directory'
+  inputs:
+    targetType: 'inline'
+    script: |
+          mkdir -p output/runtimes/${{ matrix.runtime.name }}/native
+          find native/build -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.so" \) -exec cp {} output/runtimes/${{ matrix.runtime.name }}/native \;
+
+- task: CopyFiles@2
+  displayName: 'Upload build artifacts'
+  inputs:
+    SourceFolder: './output/runtimes'
+    Contents: '**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
