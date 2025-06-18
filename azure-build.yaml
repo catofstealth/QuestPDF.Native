@@ -43,7 +43,7 @@ steps:
           apt install wget git cmake fontconfig --yes
 
 - task: Bash@3
-  enabled: false
+  enabled: true
   displayName: 'Install Clang'
   inputs:
     targetType: 'inline'
@@ -57,22 +57,22 @@ steps:
           #apt update --yes
           
           
-          #update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
-          #update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
+          update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
+          update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
           
-          #update-alternatives --config cc
-          #update-alternatives --config c++
+          update-alternatives --config cc
+          update-alternatives --config c++
           
-          #cc --version
-          #c++ --version
-          #update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
-          #update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+          cc --version
+          c++ --version
+          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
+          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
           
-          #update-alternatives --config clang
-          #update-alternatives --config clang++
+          update-alternatives --config clang
+          update-alternatives --config clang++
           
-          #clang --version
-          #clang++ --version
+          clang --version
+          clang++ --version
 
 - task: Bash@3
   enabled: false
@@ -186,7 +186,7 @@ steps:
             ls
             mkdir out
             mkdir out/release
-            ./third-party/ninja/ninja -C out/release skia svg skparagraph skresources
+            ./third_party/ninja/ninja -C out/release skia svg skparagraph skresources
 
 - task: Bash@3
   displayName: 'Configure CMake'
