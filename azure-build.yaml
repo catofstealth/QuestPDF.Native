@@ -172,24 +172,9 @@ steps:
             skia_lex=false
             extra_cflags=["-fPIC", "-fno-rtti"]'
             
-          if [[ "${{ matrix.runtime.name }}" == linux-* ]]; then
             COMMON_ARGS+=' cc="clang" cxx="clang++"'
-          fi
-          
-          if [ "${{ runner.os }}" = "macOS" ]; then
-            COMMON_ARGS+=' skia_use_fonthost_mac=true'
-          fi
-          
-          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
-            COMMON_ARGS+=' target_cpu="x86"'
-          fi
-          
-          if [ "${{ matrix.runtime.name }}" = "linux-musl-x64" ]; then
-            gn gen out/release --args="$COMMON_ARGS"
-          else
-            bin/gn gen out/release --args="$COMMON_ARGS"
-          fi
-          ninja -C out/release skia svg skparagraph skresources
+
+            ninja -C out/release skia svg skparagraph skresources
 
 - task: Bash@3
   displayName: 'Configure CMake'
@@ -203,9 +188,6 @@ steps:
             -DCMAKE_CXX_COMPILER=clang++ 
             -DCMAKE_C_COMPILER=clang 
             -DCMAKE_BUILD_TYPE=Release"
-          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
-            CMAKE_ARGS+=" -A Win32"
-          fi
           cmake $CMAKE_ARGS
 
 - task: Bash@3
@@ -222,8 +204,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-          mkdir -p output/runtimes/${{ matrix.runtime.name }}/native
-          find native/build -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.so" \) -exec cp {} output/runtimes/${{ matrix.runtime.name }}/native \;
+          mkdir -p output/runtimes/linux-x64/native
+          find native/build -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.so" \) -exec cp {} output/runtimes/linux-x64/native \;
 
 - task: CopyFiles@2
   displayName: 'Upload build artifacts'
