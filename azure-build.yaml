@@ -181,7 +181,12 @@ steps:
             
             COMMON_ARGS+=' cc="clang" cxx="clang++"'
 
-            ninja -C out/release skia svg skparagraph skresources
+            bin/gn gen out/release --args="$COMMON_ARGS"
+            
+            ls
+            mkdir out
+            mkdir out/release
+            ./third-party/ninja/ninja -C out/release skia svg skparagraph skresources
 
 - task: Bash@3
   displayName: 'Configure CMake'
