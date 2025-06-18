@@ -61,9 +61,9 @@ steps:
           #sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
           
           #sudo update-alternatives --config cc
-          sudo update-alternatives --set cc /usr/bin/clang-15
+          #sudo update-alternatives --set cc /usr/bin/clang-15
           #sudo update-alternatives --config c++
-          sudo update-alternatives --set c++ /usr/bin/clang++-15
+          #sudo update-alternatives --set c++ /usr/bin/clang++-15
           
           cc --version
           c++ --version
@@ -71,9 +71,9 @@ steps:
           #update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
           
           #update-alternatives --config clang
-          sudo update-alternatives --set clang /usr/bin/clang-15
+          #sudo update-alternatives --set clang /usr/bin/clang-15
           #update-alternatives --config clang++
-          sudo update-alternatives --set clang++ /usr/bin/clang++-15
+          #sudo update-alternatives --set clang++ /usr/bin/clang++-15
           
           clang --version
           clang++ --version
