@@ -20,6 +20,7 @@ steps:
   displayName: 'Run a multi-line script'
 
 - task: Bash@3
+  enabled: false
   displayName: 'Install Dependencies (Linux)'
   inputs:
     targetType: 'inline'
